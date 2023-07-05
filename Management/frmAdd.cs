@@ -39,24 +39,76 @@ namespace Management
 
         private void btn_Add_Click(object sender, EventArgs e)
         {
-            string id = inputID.Text;
-            string name = inputName.Text;
-            decimal price = Convert.ToDecimal(inputPrice.Text);
-            int quantity = Convert.ToInt32(inputQuantity.Text);
-            string category = comboBox_Type.SelectedItem.ToString();
+            bool check = true;
+            string id;
+            string name;
+            decimal price;
+            int quantity;
+            string category;
+            int categoryId;
             ProductServices productServices = new ProductServices();
             CategoryServices categoryServices = new CategoryServices();
-            var categories = categoryServices.GetAll();
-            var categoryId = categories.Where(x => x.Name == category).FirstOrDefault().CategoryId;
-            //Add new product
-            var product = new TblProduct();
-            product.ProductId = id;
-            product.Name = name;
-            product.Price = price;
-            product.Quantity = quantity;
-            product.CategoryId = categoryId;
-            productServices.Create(product);
-            this.Close();
+                //check fill all field
+                if (inputID.Text == "" || inputName.Text == "" || inputPrice.Text == "" || inputQuantity.Text == "")
+                {
+                    MessageBox.Show("Please fill all field", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    check = false;
+                }
+                //check inputId is exist
+                id = inputID.Text;
+                name = inputName.Text;
+                price = Convert.ToDecimal(inputPrice.Text);
+                quantity = Convert.ToInt32(inputQuantity.Text);
+                category = comboBox_Type.SelectedItem.ToString();
+                var categories = categoryServices.GetAll();
+                categoryId = categories.Where(x => x.Name == category).FirstOrDefault().CategoryId;
+                var products = productServices.GetAll();
+                foreach (var product in products)
+                {
+                    if (product.ProductId == id)
+                    {
+                        MessageBox.Show("Id is exist", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        check = false;
+                    }
+                }
+                //check name is not a number
+                if (name.All(char.IsDigit))
+                {
+                    MessageBox.Show("Name is not a number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    check = false;
+                }
+                //check price is not a string
+                if (price.ToString().All(char.IsLetter))
+                {
+                    MessageBox.Show("Price is not a string", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    check = false;
+                } else if (price < 0)
+                {
+                    MessageBox.Show("Price is not a negative number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    check = false;
+                }
+                //check quantity is not a string
+                if (quantity.ToString().All(char.IsLetter))
+                {
+                    MessageBox.Show("Quantity is not a string", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    check = false;
+                } else if (quantity < 0)
+                {
+                    MessageBox.Show("Quantity is not a negative number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    check = false;
+                }
+                if (check)
+                {
+                    //Add new product
+                    var new_product = new TblProduct();
+                    new_product.ProductId = id;
+                    new_product.Name = name;
+                    new_product.Price = price;
+                    new_product.Quantity = quantity;
+                    new_product.CategoryId = categoryId;
+                    productServices.Create(new_product);
+                    this.Close();
+                }
         }
-    }
+}
 }

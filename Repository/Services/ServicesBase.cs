@@ -26,8 +26,15 @@ namespace Repository.Services
 
         public void Create(T entity)
         {
-            _dbSet.Add(entity);
-            _context.SaveChanges();
+            try
+            {
+                _dbSet.Add(entity);
+                _context.SaveChanges();
+            } catch (Exception ex)
+            {
+                //throw a message box here
+                Console.WriteLine(ex.Message);
+            }
         }
 
         public bool Delete(T entity)
