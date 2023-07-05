@@ -1,0 +1,14 @@
+E:\PRN211\Management\Repository\bin\Debug\net6.0\Repository.deps.json
+E:\PRN211\Management\Repository\bin\Debug\net6.0\Repository.dll
+E:\PRN211\Management\Repository\bin\Debug\net6.0\Repository.pdb
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.csproj.AssemblyReference.cache
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.GeneratedMSBuildEditorConfig.editorconfig
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.AssemblyInfoInputs.cache
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.AssemblyInfo.cs
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.csproj.CoreCompileInputs.cache
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.dll
+E:\PRN211\Management\Repository\obj\Debug\net6.0\refint\Repository.dll
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.pdb
+E:\PRN211\Management\Repository\obj\Debug\net6.0\ref\Repository.dll
+E:\PRN211\Management\Repository\bin\Debug\net6.0\Repository.runtimeconfig.json
+E:\PRN211\Management\Repository\obj\Debug\net6.0\Repository.genruntimeconfig.cache
