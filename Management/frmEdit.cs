@@ -1,4 +1,5 @@
-﻿using Repository.Models;
+﻿using Microsoft.IdentityModel.Tokens;
+using Repository.Models;
 using Repository.Services;
 using System;
 using System.Collections.Generic;
@@ -47,66 +48,126 @@ namespace Management
 
         private void button1_Click(object sender, EventArgs e)
         {
-            bool check = true;
-            string id = inputID.Text;
-            string name;
-            decimal price;
-            int quantity;
-            string category;
-            int categoryId;
+            string id = inputID.Text.Trim();
+            string name = inputName.Text.Trim();
+            string price = inputPrice.Text.Trim();
+            decimal priceDecimal = 0;
+            string quantity = inputQuantity.Text.Trim();
+            int quantityInt = 0;
+            Validation val = new Validation();
             ProductServices productServices = new ProductServices();
             CategoryServices categoryServices = new CategoryServices();
             //check fill all field
-            if (inputID.Text == "" || inputName.Text == "" || inputPrice.Text == "" || inputQuantity.Text == "")
+            bool check = true;
+            if (val.isEmpty(id, name, price, quantity))
             {
-                MessageBox.Show("Please fill all field", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                string error = "";
+                if (val.isEmpty(id))
+                {
+                    error += "ID, ";
+                }
+                if (val.isEmpty(name))
+                {
+                    error += "Name, ";
+                }
+                if (val.isEmpty(price))
+                {
+                    error += "Price, ";
+                }
+                if (val.isEmpty(quantity))
+                {
+                    error += "Quantity, ";
+                }
+                error = error.Substring(0, error.Length - 2);
+                error += " can not be empty";
+                MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (val.isEmpty(price))
+                {
+
+                }
+            }
+            else if (!val.formatID(id).IsNullOrEmpty())
+            {
+                string error = val.formatID(id);
+                //check error id format
+                if (error == "ID must be start with SW and follow by 3 numbers from 001" || error == "ID must be start with SW" || error == "ID wrong format")
+                {
+                    MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    check = false;
+                }
+            }
+
+            //check isName 
+            if (!val.isName(name).IsNullOrEmpty())
+            {
+                string error = val.isName(name);
+                if (error == "Name must be not number")
+                {
+                    MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    check = false;
+                }
+
+            }
+            //check isPrice
+            if (val.isPrice(price) == -2)
+            {
+                MessageBox.Show("Price must be a positive number >0", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 check = false;
             }
-            //check inputId is exist
-            id = inputID.Text;
-            name = inputName.Text;
-            price = Convert.ToDecimal(inputPrice.Text);
-            quantity = Convert.ToInt32(inputQuantity.Text);
-            category = comboBox_Type.SelectedItem.ToString();
-            var categories = categoryServices.GetAll();
-            categoryId = categories.Where(x => x.Name == category).FirstOrDefault().CategoryId;
-            //check name is not a number
-            if (name.All(char.IsDigit))
+            else
             {
-                MessageBox.Show("Name is not a number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (!price.IsNullOrEmpty())
+                {
+                    try
+                    {
+                        priceDecimal = decimal.Parse(price);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Price must be a number", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        check = false;
+                    }
+                }
+            }
+            //check isQuantity
+            if (val.isQuantity(quantity) == -2)
+            {
+                MessageBox.Show("Quantity must be a positive number >0", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 check = false;
             }
-            //check price is not a string
-            if (price.ToString().All(char.IsLetter))
+            else
             {
-                MessageBox.Show("Price is not a string", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                check = false;
-            }
-            else if (price < 0)
-            {
-                MessageBox.Show("Price is not a negative number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                check = false;
-            }
-            //check quantity is not a string
-            if (quantity.ToString().All(char.IsLetter))
-            {
-                MessageBox.Show("Quantity is not a string", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                check = false;
-            }
-            else if (quantity < 0)
-            {
-                MessageBox.Show("Quantity is not a negative number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                check = false;
+                if (!quantity.IsNullOrEmpty())
+                {
+                    try
+                    {
+                        quantityInt = int.Parse(quantity);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Quantity must be a number", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        check = false;
+                    }
+                }
             }
             if (check)
             {
+                var categories = categoryServices.GetAll();
+                int categoryID = 0;
+                foreach (var category in categories)
+                {
+                    if (category.Name == comboBox_Type.SelectedItem.ToString())
+                    {
+                        categoryID = category.CategoryId;
+                    }
+                }
                 //Add new product
                 var new_product = new TblProduct();
                 new_product.ProductId = id;
                 new_product.Name = name;
-                new_product.Price = price;
-                new_product.Quantity = quantity;
-                new_product.CategoryId = categoryId;
+                new_product.Price = priceDecimal;
+                new_product.Quantity = quantityInt;
+                new_product.CategoryId = categoryID;
                 productServices.Update(new_product);
                 this.Close();
                 //set result to ok

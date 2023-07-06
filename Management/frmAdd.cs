@@ -1,4 +1,5 @@
-﻿using Repository.Models;
+﻿using Microsoft.IdentityModel.Tokens;
+using Repository.Models;
 using Repository.Services;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,9 @@ namespace Management
                 comboBox_Type.Items.Add(category.Name);
             }
             comboBox_Type.SelectedIndex = 0;
+            //disable to type in comboBox
+            comboBox_Type.DropDownStyle = ComboBoxStyle.DropDownList;
+            //set default value for quantity and price is 1
         }
 
         private void btn_Cancel_Click(object sender, EventArgs e)
@@ -39,76 +43,142 @@ namespace Management
 
         private void btn_Add_Click(object sender, EventArgs e)
         {
-            bool check = true;
-            string id;
-            string name;
-            decimal price;
-            int quantity;
-            string category;
-            int categoryId;
+            string id = inputID.Text.Trim();
+            string name = inputName.Text.Trim();
+            string price = inputPrice.Text.Trim();
+            decimal priceDecimal = 0;
+            string quantity = inputQuantity.Text.Trim();
+            int quantityInt = 0;
+            Validation val = new Validation();
             ProductServices productServices = new ProductServices();
             CategoryServices categoryServices = new CategoryServices();
-                //check fill all field
-                if (inputID.Text == "" || inputName.Text == "" || inputPrice.Text == "" || inputQuantity.Text == "")
+            //check fill all field
+            bool check = true;
+            if (val.isEmpty(id, name, price, quantity))
+            {
+                string error = "";
+                if (val.isEmpty(id))
                 {
-                    MessageBox.Show("Please fill all field", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    error += "ID, ";
+                }
+                if (val.isEmpty(name))
+                {
+                    error += "Name, ";
+                }
+                if (val.isEmpty(price))
+                {
+                    error += "Price, ";
+                }
+                if (val.isEmpty(quantity))
+                {
+                    error += "Quantity, ";
+                }
+                error = error.Substring(0, error.Length - 2);
+                error+= " can not be empty";
+                MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                check = false;
+            }
+            else if (!val.formatID(id).IsNullOrEmpty())
+            {
+                string error = val.formatID(id);
+                //check error id format
+                if (error == "ID must be start with SW and follow by 3 numbers from 001" || error == "ID must be start with SW" || error == "ID wrong format")
+                {
+                    MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     check = false;
                 }
-                //check inputId is exist
-                id = inputID.Text;
-                name = inputName.Text;
-                price = Convert.ToDecimal(inputPrice.Text);
-                quantity = Convert.ToInt32(inputQuantity.Text);
-                category = comboBox_Type.SelectedItem.ToString();
-                var categories = categoryServices.GetAll();
-                categoryId = categories.Where(x => x.Name == category).FirstOrDefault().CategoryId;
-                var products = productServices.GetAll();
-                foreach (var product in products)
+                else
                 {
-                    if (product.ProductId == id)
+                    //check id exist
+                    var products = productServices.GetAll();
+                    foreach (var product in products)
                     {
-                        MessageBox.Show("Id is exist", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        if (product.ProductId == id)
+                        {
+                            MessageBox.Show("ID already exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            check = false;
+                        }
+                    }
+                }
+            }
+            
+            //check isName 
+            if (!val.isName(name).IsNullOrEmpty())
+            {
+                string error = val.isName(name);
+                if (error == "Name must be not number")
+                {
+                    MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    check = false;
+                }
+
+            }
+            //check isPrice
+            if(val.isPrice(price) == -2)
+            {
+                MessageBox.Show("Price must be a positive number >0", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                check = false;
+            }
+            else
+            {
+                if (!price.IsNullOrEmpty())
+                {
+                    try
+                    {
+                        priceDecimal = decimal.Parse(price);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Price must be a number", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         check = false;
                     }
                 }
-                //check name is not a number
-                if (name.All(char.IsDigit))
+            }
+            //check isQuantity
+            if (val.isQuantity(quantity) == -2)
+            {
+                MessageBox.Show("Quantity must be a positive number >0", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                check = false;
+            }
+            else
+            {
+                if (!quantity.IsNullOrEmpty())
                 {
-                    MessageBox.Show("Name is not a number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    check = false;
+                    try
+                    {
+                        quantityInt = int.Parse(quantity);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Quantity must be a number", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        check = false;
+                    }
                 }
-                //check price is not a string
-                if (price.ToString().All(char.IsLetter))
+            }
+            //add product
+            if (check)
+            {
+                var categories = categoryServices.GetAll();
+                int categoryID = 0;
+                foreach (var category in categories)
                 {
-                    MessageBox.Show("Price is not a string", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    check = false;
-                } else if (price < 0)
-                {
-                    MessageBox.Show("Price is not a negative number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    check = false;
+                    if (category.Name == comboBox_Type.SelectedItem.ToString())
+                    {
+                        categoryID = category.CategoryId;
+                    }
                 }
-                //check quantity is not a string
-                if (quantity.ToString().All(char.IsLetter))
+                TblProduct product = new TblProduct()
                 {
-                    MessageBox.Show("Quantity is not a string", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    check = false;
-                } else if (quantity < 0)
-                {
-                    MessageBox.Show("Quantity is not a negative number", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    check = false;
-                }
-                if (check)
-                {
-                    //Add new product
-                    var new_product = new TblProduct();
-                    new_product.ProductId = id;
-                    new_product.Name = name;
-                    new_product.Price = price;
-                    new_product.Quantity = quantity;
-                    new_product.CategoryId = categoryId;
-                    productServices.Create(new_product);
-                    this.Close();
-                }
+                    ProductId = id,
+                    Name = name,
+                    Price = priceDecimal,
+                    Quantity = quantityInt,
+                    CategoryId = categoryID
+                };
+                productServices.Create(product);
+                MessageBox.Show("Add product successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.Close();
+            }
         }
-}
+    }
 }

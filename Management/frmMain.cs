@@ -119,7 +119,7 @@ namespace Management
             if (searchBy.Equals("Id"))
             {
                 txtSearch.Text = searchValue;
-                var products = _productServices.GetAll().Where(x => x.ProductId.Contains(searchValue)).ToList();
+                var products = _productServices.GetAll().Where(x => x.ProductId.ToLower().Contains(searchValue.ToLower())).ToList();
                 var categories = CategoryServices.GetAll();
                 foreach (var product in products)
                 {
@@ -131,17 +131,19 @@ namespace Management
                 }
                 var Product = products.Select(
                    x => new
-                        {
-                                       x.ProductId,
-                                       x.Name,
-                                       x.Price,
-                                       x.Quantity,
-                                       CategoryName = x.Category.Name
-                                   }).ToList();
+                   {
+                       x.ProductId,
+                       x.Name,
+                       x.Price,
+                       x.Quantity,
+                       CategoryName = x.Category.Name
+                   }).ToList();
                 dgvProducts.DataSource = Product;
-            } else if (searchBy.Equals("Name")) {
+            }
+            else if (searchBy.Equals("Name"))
+            {
                 txtSearch.Text = searchValue;
-                var products = _productServices.GetAll().Where(x => x.Name.Contains(searchValue)).ToList();
+                var products = _productServices.GetAll().Where(x => x.Name.ToLower().Contains(searchValue.ToLower())).ToList();
                 var categories = CategoryServices.GetAll();
                 foreach (var product in products)
                 {
@@ -152,16 +154,23 @@ namespace Management
                     }
                 }
                 var Product = products.Select(
-                    x => new
-                       {
-                                       x.ProductId,
-                                       x.Name,
-                                       x.Price,
-                                       x.Quantity,
-                                       CategoryName = x.Category.Name
-                                   }).ToList();
+                                      x => new
+                                      {
+                                          x.ProductId,
+                                          x.Name,
+                                          x.Price,
+                                          x.Quantity,
+                                          CategoryName = x.Category.Name
+                                      }).ToList();
                 dgvProducts.DataSource = Product;
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //reset txtSearch
+            txtSearch.Text = "";
+            button1_Click(sender, e);
         }
     }
 }

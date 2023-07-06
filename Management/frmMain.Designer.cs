@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             panel1 = new Panel();
+            button2 = new Button();
             button1 = new Button();
             cmbSearchBy = new ComboBox();
             label2 = new Label();
@@ -46,6 +47,7 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(button2);
             panel1.Controls.Add(button1);
             panel1.Controls.Add(cmbSearchBy);
             panel1.Controls.Add(label2);
@@ -56,6 +58,17 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(800, 87);
             panel1.TabIndex = 0;
+            // 
+            // button2
+            // 
+            button2.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point);
+            button2.Location = new Point(663, 60);
+            button2.Name = "button2";
+            button2.Size = new Size(75, 23);
+            button2.TabIndex = 5;
+            button2.Text = "Reset";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
             // 
             // button1
             // 
@@ -70,17 +83,18 @@
             // 
             // cmbSearchBy
             // 
+            cmbSearchBy.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbSearchBy.FormattingEnabled = true;
-            cmbSearchBy.Location = new Point(709, 61);
+            cmbSearchBy.Location = new Point(572, 31);
             cmbSearchBy.Name = "cmbSearchBy";
-            cmbSearchBy.Size = new Size(82, 23);
+            cmbSearchBy.Size = new Size(75, 23);
             cmbSearchBy.TabIndex = 3;
             // 
             // label2
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point);
-            label2.Location = new Point(647, 62);
+            label2.Location = new Point(513, 29);
             label2.Name = "label2";
             label2.Size = new Size(49, 21);
             label2.TabIndex = 2;
@@ -192,5 +206,6 @@
         private TextBox txtSearch;
         private Label label1;
         private Button button1;
+        private Button button2;
     }
 }
